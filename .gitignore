@@ -1,0 +1,7 @@
+﻿# Claves y firmas generadas al ejecutar los scripts: no se suben al repositorio
+keys/*
+!keys/.gitkeep
+keysCert/*
+!keysCert/.gitkeep
+*.pem
+*.dat

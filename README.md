@@ -1,206 +1,189 @@
-# CRUD Rápido con Laravel
+# Lab OpenSSL: Seguridad en PHP con OpenSSL y Libsodium
 
-Laboratorio #2: CRUD de productos con Laravel, generado con `ibex/crud-generator` y Bootstrap.
+Laboratorio de **Desarrollo Web VII: PHP y MySQL** (Universidad Tecnológica de Panamá). Implementa funciones criptográficas en PHP para proteger datos sensibles, según los lineamientos de **OWASP** (categoría *Cryptographic Failures*): firma digital y verificación con RSA, certificado X.509 autofirmado, cifrado simétrico AES-128-CBC y cifrado autenticado con Libsodium.
+
+Cada script tiene un formulario HTML para ingresar los datos y una hoja de estilos compartida (`estilos.css`).
+
+**Autores:** Jazid Sánchez y Nohelis Castro · **Grupo:** 1s3122 · **Docente:** Ing. Irina Fong
 
 ---
 
-## 1. Detalles del laboratorio
+## 1. Insertar registros (imágenes)
 
-| Campo | Detalle |
+En este laboratorio no se usa base de datos: los "registros" son los datos que el usuario ingresa en los formularios y los resultados criptográficos que se generan a partir de ellos.
+
+### Verificación del entorno
+
+| `verificar.php` | Archivos del proyecto en el servidor |
 |---|---|
-| Curso | Herramientas de la Programación Aplicada I |
-| Laboratorio | #2 – Acercamiento a un CRUD rápido en Laravel |
-| Docente | Ing. Irina Fong |
-| Objetivo | Crear una aplicación web que permita **crear, leer, actualizar y eliminar** productos usando Laravel, migraciones y un generador de CRUD |
-| Tabla utilizada | `products` (`id`, `description`, `price`, `stock`, `timestamps`) |
-| Ruta principal | `http://127.0.0.1:8000/products` |
+| ![Verificación del entorno](imagenes/01_verificar_entorno.png) | ![Listado de archivos](imagenes/02_listado_archivos_servidor.png) |
+
+### firma7.php: firma digital RSA
+
+| Ingreso del texto a firmar | Resultado de la firma |
+|---|---|
+| ![Formulario de firma7](imagenes/03_firma7_formulario.png) | ![Resultado de firma7](imagenes/04_firma7_resultado.png) |
+
+Clave pública generada (`keys/public_key.pem`):
+
+![Clave pública](imagenes/05_firma7_clave_publica.png)
+
+### firmaOtra.php: certificado X.509 autofirmado
+
+| Ingreso de los datos del certificado | Resultado |
+|---|---|
+| ![Formulario de firmaOtra](imagenes/06_firmaOtra_formulario.png) | ![Resultado de firmaOtra](imagenes/07_firmaOtra_resultado.png) |
+
+Certificado generado (`keysCert/certout.csr`):
+
+![Certificado en keysCert](imagenes/08_keysCert_certificado.png)
+
+### Encriptacion.php: cifrado AES-128-CBC
+
+| Ingreso del texto y la clave | Resultado del cifrado y descifrado |
+|---|---|
+| ![Formulario de Encriptacion](imagenes/12_encriptacion_formulario.png) | ![Resultado de Encriptacion](imagenes/13_encriptacion_resultado.png) |
+
+### ejemploSodium.php: Libsodium
+
+| Ingreso del texto y la contraseña | Resultados |
+|---|---|
+| ![Formulario de Sodium](imagenes/14_sodium_formulario.png) | ![Resultado de Sodium](imagenes/15_sodium_resultado.png) |
 
 ---
 
-## 2. Evidencias
+## 2. Evidencia de acciones de modificar (imágenes)
 
-### 2.1 Insertar registros
+Modificar los datos firmados debe invalidar la verificación. En `FirmarMensaje.php` se firma un mensaje y luego se verifica con el mismo texto (firma válida) y con el texto alterado en una letra (firma inválida).
 
-**Formulario de creación**
-
-![Formulario de creación](docs/img/01-crear-formulario.png)
-
-**Registro insertado en el listado**
-
-![Registro insertado](docs/img/02-crear-listado.png)
-
-### 2.2 Modificar registros
-
-**Formulario de edición**
-
-![Formulario de edición](docs/img/03-modificar-formulario.png)
-
-**Listado con el registro modificado**
-
-![Registro modificado](docs/img/04-modificar-listado.png)
-
-### 2.3 Eliminar registros
-
-**Antes de eliminar**
-
-![Antes de eliminar](docs/img/05-eliminar-antes.png)
-
-**Después de eliminar**
-
-![Después de eliminar](docs/img/06-eliminar-despues.png)
-
-### 2.4 Otras vistas
-
-**Detalle del producto (Show)**
-
-![Detalle del producto](docs/img/07-show.png)
-
----
-
-## 3. Controles utilizados
-
-| Control | Dónde se usa | Función |
+| Formulario | Firma válida | Mensaje modificado: firma inválida |
 |---|---|---|
-| Campo de texto (`input text`) | Formulario: *Description* | Ingresar la descripción del producto |
-| Campo numérico (`input number`) | Formulario: *Price* y *Stock* | Ingresar precio y existencias |
-| Botón **Create New** | Listado | Abre el formulario de creación |
-| Botón **Submit** | Formularios | Envía y guarda los datos |
-| Botón **Show** | Listado | Muestra el detalle de un producto |
-| Botón **Edit** | Listado | Abre el formulario de edición |
-| Botón **Delete** | Listado | Elimina el producto |
-| Botón **Back** | Vista Show | Regresa al listado |
-| Tabla | Listado | Muestra los registros (No, Description, Price, Stock) |
-| Barra de navegación | Todas las vistas | Navegación general (layout de Bootstrap) |
+| ![Formulario de FirmarMensaje](imagenes/09_firmarmensaje_formulario.png) | ![Firma válida](imagenes/10_firmarmensaje_firma_valida.png) | ![Firma inválida](imagenes/11_firmarmensaje_firma_invalida.png) |
+
+En `ejemploSodium.php` también se altera un byte del texto cifrado y `sodium_crypto_secretbox_open` lo rechaza (ver sección "2. Prueba de integridad" en la imagen de resultados de Sodium).
 
 ---
 
-## 4. Tecnologías y versiones
+## 3. Evidencia de acciones de eliminar (imágenes)
 
-| Tecnología | Versión |
+**No aplica.** El laboratorio no maneja registros almacenados, por lo que no hay operación de eliminar. Las claves y firmas se regeneran en cada ejecución y las carpetas `keys/` y `keysCert/` se pueden vaciar sin afectar el código.
+
+---
+
+## 4. Controles utilizados
+
+| Control | Dónde se aplica |
 |---|---|
-| Laravel | _(ejecutar `php artisan --version`)_ |
-| PHP | _(ejecutar `php -v`)_ |
-| MySQL (WAMP) | _(ver en phpMyAdmin)_ |
-| WampServer | _(ver en el menú de WAMP)_ |
-| Composer | _(ejecutar `composer -V`)_ |
-| Node.js | _(ejecutar `node -v`)_ |
-| npm | _(ejecutar `npm -v`)_ |
-| laravel/ui | 4.6.3 |
-| ibex/crud-generator | _(ver en `composer.json`)_ |
-| Bootstrap | Incluido con `laravel/ui` |
-| Vite | Incluido con Laravel |
+| Firma digital RSA de 2048 bits con SHA-256 (integridad y autenticidad) | `firma7.php`, `FirmarMensaje.php` |
+| Certificado X.509 autofirmado (RSA-SHA256, 365 días) | `firmaOtra.php` |
+| Cifrado simétrico AES-128-CBC con IV aleatorio (confidencialidad) | `Encriptacion.php` |
+| Cifrado autenticado XSalsa20-Poly1305 con nonce aleatorio | `ejemploSodium.php` |
+| Hash de contraseñas con Argon2id y sal aleatoria | `ejemploSodium.php` |
+| Validación de entradas: campos obligatorios, clave de exactamente 16 caracteres, país de 2 letras | formularios de todos los scripts |
+| Escape de la salida con `htmlspecialchars` (prevención de XSS) | todos los scripts |
+| Manejo de errores con `openssl_error_string()` y mensajes controlados | `firma7.php`, `firmaOtra.php`, `FirmarMensaje.php` |
+| Comprobación de que existen las claves antes de usarlas | `FirmarMensaje.php` |
+| Claves privadas fuera del repositorio (`.gitignore`) | repositorio |
+
+> Las claves privadas se muestran en pantalla solo con fines didácticos. En un sistema real nunca deben mostrarse ni guardarse sin protección.
 
 ---
 
-## 5. Proceso de instalación
+## 5. Detalles del laboratorio
 
-### Requisitos previos
+**Objetivo:** aplicar la extensión OpenSSL y la librería Libsodium en PHP para proteger datos sensibles, y documentar el proceso criptográfico de cada función.
 
-- PHP, Composer, Node.js y npm instalados
-- WampServer en ejecución (Apache y MySQL en verde)
-- Git
+| Archivo | Qué hace |
+|---|---|
+| `verificar.php` | Comprueba que las extensiones `openssl` y `sodium` estén habilitadas |
+| `firma7.php` | Genera un par de claves RSA, firma un texto y verifica la firma |
+| `firmaOtra.php` | Crea la solicitud (CSR) y el certificado X.509 autofirmado |
+| `FirmarMensaje.php` | Firma un mensaje con la clave privada y lo verifica con el certificado |
+| `Encriptacion.php` | Cifra y descifra un texto con AES-128-CBC |
+| `ejemploSodium.php` | Cifrado autenticado, prueba de integridad y hash Argon2id con Libsodium |
+| `estilos.css` | Estilos compartidos de los formularios |
 
-### Pasos para ejecutar el proyecto desde GitHub
+Estructura del repositorio:
 
-1. **Clonar el repositorio**
-
-   ```bash
-   git clone https://github.com/jazidsanchez-create/Lab_crud-rapido.git
-   cd Lab_crud-rapido
-   ```
-
-2. **Instalar dependencias**
-
-   ```bash
-   composer install
-   npm install
-   ```
-
-3. **Crear el archivo de entorno**
-
-   ```bash
-   copy .env.example .env
-   php artisan key:generate
-   ```
-
-4. **Crear la base de datos** `crud_rapido` en phpMyAdmin (`http://localhost/phpmyadmin`).
-
-5. **Configurar el `.env`**
-
-   ```env
-   DB_CONNECTION=mysql
-   DB_HOST=127.0.0.1
-   DB_PORT=3306
-   DB_DATABASE=crud_rapido
-   DB_USERNAME=root
-   DB_PASSWORD=
-   ```
-
-6. **Ejecutar las migraciones**
-
-   ```bash
-   php artisan config:clear
-   php artisan migrate
-   ```
-
-7. **Compilar el frontend** (dejar esta terminal abierta)
-
-   ```bash
-   npm run dev
-   ```
-
-8. **Levantar el servidor** (en otra terminal)
-
-   ```bash
-   php artisan serve
-   ```
-
-9. **Abrir en el navegador:** <http://127.0.0.1:8000/products>
-
-### Cómo se creó el proyecto (resumen)
-
-```bash
-laravel new crud_rapido
-php artisan make:model Product -m
-php artisan migrate
-composer require ibex/crud-generator --dev
-php artisan vendor:publish --tag=crud
-php artisan make:crud products
+```
+Lab-OpenSSL/
+├── imagenes/            capturas usadas en este README
+├── keys/                claves de firma7.php (se generan al ejecutar)
+├── keysCert/            certificado y clave de firmaOtra.php (se generan al ejecutar)
+├── verificar.php
+├── firma7.php
+├── firmaOtra.php
+├── FirmarMensaje.php
+├── Encriptacion.php
+├── ejemploSodium.php
+├── estilos.css
+└── README.md
 ```
 
-Y se registró la ruta en `routes/web.php`:
+Código de los scripts:
 
-```php
-Route::resource('products', ProductController::class);
-```
-
-### Problemas comunes y soluciones
-
-| Problema | Solución |
+| firma7.php | firmaOtra.php |
 |---|---|
-| `Specified key was too long; max key length is 1000 bytes` | Agregar `Schema::defaultStringLength(191);` en `AppServiceProvider::boot()` y poner `'engine' => 'InnoDB'` en `config/database.php`; luego `php artisan migrate:fresh` |
-| Configuración del `.env` no se aplica | `php artisan config:clear` |
-| Clase no encontrada | `composer dump-autoload` |
-| Página sin estilos o error de Vite manifest | Ejecutar `npm install` y mantener `npm run dev` activo |
+| ![Código de firma7](imagenes/16_codigo_firma7.png) | ![Código de firmaOtra](imagenes/17_codigo_firmaOtra.png) |
+
+| FirmarMensaje.php | Encriptacion.php | ejemploSodium.php |
+|---|---|---|
+| ![Código de FirmarMensaje](imagenes/18_codigo_FirmarMensaje.png) | ![Código de Encriptacion](imagenes/19_codigo_Encriptacion.png) | ![Código de ejemploSodium](imagenes/20_codigo_ejemploSodium.png) |
+
+**Problema encontrado:** los scripts originales usaban la ruta fija `C:\OpenSSL-Win64\bin\cnf\openssl.cnf`, que no existe en WAMP. Se resolvió buscando el archivo con `glob()` en `C:/wamp64/bin/apache/*/conf/openssl.cnf` y pasándolo a la opción `config` solo si se encuentra.
 
 ---
 
-## 6. Detalles del autor
+## 6. Procesos de instalación
 
-| Campo | Detalle |
-|---|---|
-| Autor | Jazid Sánchez |
-| Fecha | 16 de octubre de 2026 |
-| Repositorio | <https://github.com/jazidsanchez-create/Lab_crud-rapido> |
+1. Instalar **WAMP** y encender los servicios (ícono verde).
+2. Verificar que estén marcadas las extensiones `openssl` y `sodium` (menú de WAMP → PHP → Extensiones PHP).
+3. Clonar el repositorio dentro de la carpeta `www` de WAMP:
+
+   ```powershell
+   cd C:\wamp64\www
+   git clone https://github.com/jazidsanchez-create/Lab-OpenSSL.git
+   ```
+
+4. Copiar `verificar.php` a la raíz de `www` si se quiere probar el entorno (o abrirlo desde la carpeta del proyecto).
+5. Abrir en el navegador:
+   - `http://localhost/Lab-OpenSSL/firma7.php`
+   - `http://localhost/Lab-OpenSSL/firmaOtra.php`
+   - `http://localhost/Lab-OpenSSL/FirmarMensaje.php` (requiere ejecutar antes `firmaOtra.php`)
+   - `http://localhost/Lab-OpenSSL/Encriptacion.php`
+   - `http://localhost/Lab-OpenSSL/ejemploSodium.php`
+6. Las claves y los certificados se crean solos en `keys/` y `keysCert/` al ejecutar los scripts. No se suben al repositorio.
 
 ---
 
-## 7. Referencias
+## 7. Tecnologías y versiones
 
-- Guía del Laboratorio #2 de CRUD con Laravel – Ing. Irina Fong.
-- Tutorial en video: <https://www.youtube.com/watch?v=j5baJsM_Adc&t=111s>
-- Documentación de Laravel: <https://laravel.com/docs>
-- Migraciones en Laravel: <https://laravel.com/docs/migrations>
-- Asignación masiva (`$fillable`): <https://laravel.com/docs/eloquent#mass-assignment>
-- Laravel UI: <https://github.com/laravel/ui>
-- Ibex CRUD Generator: <https://github.com/awais-vteams/laravel-crud-generator>
+| Tecnología | Versión / detalle |
+|---|---|
+| Sistema operativo | Windows |
+| Servidor | WAMP con Apache 2.4.65 (Win64) |
+| Lenguaje | PHP 8.3.28 |
+| Extensiones PHP | `openssl` y `sodium` (Libsodium incluida desde PHP 7.2) |
+| Front-end | HTML5 y CSS3 |
+| Editor | Visual Studio Code |
+| Control de versiones | Git y GitHub |
+
+---
+
+## 8. Detalles del autor, fecha y referencias
+
+**Autores:** Jazid Sánchez y Nohelis Castro
+**Institución:** Universidad Tecnológica de Panamá, Facultad de Ingeniería de Sistemas Computacionales
+**Asignatura:** Desarrollo Web VII: PHP y MySQL
+**Docente:** Ing. Irina Fong
+**Grupo:** 1s3122
+**Período:** II Semestre 2026
+**Fecha de entrega:** 30 de octubre de 2026
+
+**Referencias**
+
+- Archivos base del laboratorio, proporcionados por la docente: https://github.com/Salomon2514/SeguridadOpenSSL
+- PHP Manual, extensión OpenSSL: https://www.php.net/manual/es/book.openssl.php
+- PHP Manual, extensión Sodium: https://www.php.net/manual/es/book.sodium.php
+- OWASP Top 10:2021, A02 Cryptographic Failures: https://owasp.org/Top10/A02_2021-Cryptographic_Failures/
+- OWASP Password Storage Cheat Sheet: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
